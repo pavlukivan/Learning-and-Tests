@@ -32,7 +32,7 @@
                             } else
                             {
                                 //Получаем хеш
-                                $hash = exec('./model/hash.out <<< "'.escapeshellcmd($text).'"');
+                                $hash = exec('./model/Hash.out <<< "'.escapeshellcmd($text).' 6"');
                                 //Хэш получен?
                                 if (!empty($hash))
                                 {
