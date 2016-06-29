@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 #include <cstdlib>
+#include <cstring>
 
 using namespace std;
 
@@ -111,6 +112,93 @@ class AutoTests {
 private:
 	int countInearation;
 
+	//Сравнение строк
+	int myStrcmp (string str1, string str2)
+	{
+	// 0 - Строки равны
+	// 1 - str1 > str2
+	// -1 - str2 > str1
+
+	//Сравниваем по длинам
+		if (str1.length() > str2.length())
+			return -1;
+		if (str1.length() < str2.length())
+			return 1;
+
+	//Сравниваем по символам (если длины равны)
+		for (unsigned int i = 0; i < str1.length(); i++)
+		{
+			if (str1[i] == str2[i]) continue;
+			if (i == str1.length() && str1[i] == str2[i])
+				return 0;
+			if (str1[i] != str2[i])
+				return str1[i] < str2[i] ? 1 : -1;
+		}
+	}
+
+	//Сортировка строк
+	void quickSortString(string a[], int l, int r)
+	{
+		//Центральный элемент
+		    string x = a[l + (r - l) / 2];
+
+		    //Первый эл. рассматриваемого массива
+		    int i = l;
+		    //Последний
+		    int j = r;
+
+		    //Обходим весь массив
+		    while(i <= j)
+		    {
+		    	//Определяем новые рамки
+		    	//while(strcmp(a[i].c_str(), x.c_str()) < 0) i++;
+			  	//while(strcmp(a[j].c_str(), x.c_str()) > 0) j--;
+		        while(myStrcmp(a[i], x) > 0) i++;
+		        while(myStrcmp(a[j], x) < 0) j--;
+		        if(i <= j)
+		        {
+		            swap(a[i], a[j]);
+		            i++;
+		            j--;
+		        }
+		    }
+
+		    //Обход части ближней к концу
+		    if (i<r)
+		    	quickSortString(a, i, r);
+
+		    //Обход части ближней к началу
+		    if (l<j)
+		    	quickSortString(a, l, j);
+	}
+
+	//Поиск совпадений
+	int searchString(string a[], string str, int l, int n)
+	{
+		int search = -1;
+
+		while (l < n)
+		{
+			//Центральный элемент
+				int x = l + (n - l) / 2;
+
+			//Если нашли
+			if (str == a[x]){
+				search = x;
+				break;
+			}
+
+			//Если не нашли
+			if (str < a[x])
+				n = x - 1;
+			else
+				l = x + 1;
+		}
+
+		return search;
+	}
+
+	//Приведение кодов
 	int receivingExistCodes(int x) {
 		x+=256;
 		while (!(((x <= 57) && (x >= 48)) || ((x <= 90) && (x >= 65)) || ((x <= 122) && (x >= 97)))) {
@@ -119,14 +207,7 @@ private:
 		return x;
 	}
 
-	int ceivingExistCodes(int x) {
-		x+=256;
-		while (!(((x <= 57) && (x >= 48)) || ((x <= 90) && (x >= 65)) || ((x <= 122) && (x >= 97)))) {
-			if (x < 48) {x+=24;} else {x-=47;}
-		}
-		return x;
-	}
-
+	//Генерация строки
 	string generationString ()
 	{
 		string str;
@@ -154,7 +235,6 @@ public:
 		string stringTemp;
 		string resultTemp;
 
-		string arrayString[this->countInearation];
 		string arrayHash[this->countInearation];
 
 		//Заполнение
@@ -165,38 +245,23 @@ public:
 			Hash hash;
 			resultTemp = hash.getHash(stringTemp, lenghtTemp);
 
-			/*cout << "String: " << stringTemp << endl;
-			cout << "LenghtHash: " << lenghtTemp << endl;
-			cout << "Hash: " << resultTemp << endl << endl;*/
-
-			arrayString[i] = stringTemp;
 			arrayHash[i] = resultTemp;
 		}
 
-		//Поиск совпадений (Да, знаю, что реализован плохо :( Нужно переделать)
+		//Сортируем
+		this->quickSortString(arrayHash, 0, this->countInearation-1);
+
+		//Ищем
 		for (int i = 0; i < this->countInearation; i++)
 		{
-			for (int j = 0; j < this->countInearation; j++)
-			{
-				if (i == j)
-					continue;
-				//Если есть совпадение
-				if (arrayHash[i]== arrayHash[j]){
-					//Проверяем не равны ли строки
-					if (arrayString[i] != arrayString[j])
-					{
-						cout << "Совпадение! (I): "
-						<< i << " " << arrayHash[i] << " (" << arrayString[i] << ") "
-						<< " (J): " << j <<  " " << arrayHash[j] << " (" << arrayString[j] << ") " << endl;
+			string str = arrayHash[i];
+			int x = this->searchString(arrayHash, str, 0, this->countInearation);
 
-						counterCoints++;
-					}
-				}
-			}
+			if (i != x && x != -1)
+				counterCoints++;
 		}
 
-		cout << "Всего совпадений: " << counterCoints;
-		arrayString->clear();
+		cout << "Всего совпадений: " << counterCoints << endl;
 		arrayHash->clear();
 	}
 };
@@ -209,8 +274,10 @@ int main() {
 
 	Hash hash(str,len);*/
 
-	AutoTests test(5000);
-	test.GoTestRandom(6);
+	AutoTests test(40000);
+	test.GoTestRandom(8);
+
+	 cout << "Time: " << double(clock()) << endl;
 
     //cout << hash.getHash() << endl;
 }
