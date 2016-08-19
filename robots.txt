@@ -1,0 +1,4 @@
+Host: http://i2m.su/
+User-agent: *
+Allow: /
+Sitemap: http://i2m.su/sitemap.txt

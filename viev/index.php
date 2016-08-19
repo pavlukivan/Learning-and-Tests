@@ -52,21 +52,20 @@
         <!-- /Yandex.Metrika counter -->
     </head>
     <body>
-        <?php include("../it2moro.ru/other/service_header/index.php");?>
         <div class="body">
-            <h1>Сокращатель ссылок</h1>
             <div class="form">
+                <h1><font style="color: #fe9612;">С</font>окращатель <font style="color: #fe9612;">сс</font>ылок</h1>
                 <form method="post" action="">
                     <input type="text" name="link" placeholder="Введите ссылку..."/>
-                    <input type="submit" value="Сократить!">
+                    <input type="submit" value="Сократить!" onclick="yaCounter38001960.reachGoal('create_link'); return true;">
                 </form>
                 <?php if($hash) {?><div class="new_link" id="select">http://i2m.su/<b><?=$hash?></b></div><?php } ?>
                 <?php if($error) {?> <div class="error"><?=$error?></div> <?php } ?>
             </div>
-        </div>
-        <!--Хотите узнать как это работает и сделать так же? -->
-        <div class="footer">
-            <p><?=date(Y);?> - 2016 &copy <a href="http://it2moro.ru" target="_blank">It2moro.ru</a> <span style="display: inline-block; width: 200px;"></span>Разработка <a href="http://it2moro.ru/summary" target="_blank">Евгений Буковски</a></p>
+            <!--Хотите узнать как это работает и сделать так же? -->
+            <div class="footer">
+                <p><?=date(Y);?> - 2016 &copy <a href="http://it2moro.ru" target="_blank">It2moro.ru</a> <span style="display: inline-block; width: 200px;"></span>Разработка: <a href="http://it2moro.ru/summary" target="_blank">Евгений Буковски</a></p>
+            </div>
         </div>
     </body>
 </html>

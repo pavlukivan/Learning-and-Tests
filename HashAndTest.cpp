@@ -13,97 +13,97 @@
 #include <string>
 #include <vector>
 #include <cstdlib>
-#include <cstring>
 
 using namespace std;
 
 class Hash {
-private:
 	string hash;
 
 	int receivingExistCodes(int x) {
-	    x+=256;
-	    while (!(((x <= 57) && (x >= 48)) || ((x <= 90) && (x >= 65)) || ((x <= 122) && (x >= 97)))) {
-	        if (x < 48) {x+=24;} else {x-=47;}
-	    }
-	    return x;
+		x += 256;
+		while (!(((x <= 57) && (x >= 48)) || ((x <= 90) && (x >= 65)) || ((x <= 122) && (x >= 97)))) {
+			if (x < 48) { x += 24; }
+			else { x -= 47; }
+		}
+		return x;
 	}
 
-	int getControlSum (string str){
+	int getControlSum(string str) {
 		unsigned int sault = 0, strlen = 0;
 
 		for (; strlen < str.size(); strlen++)
-				sault += int (str[strlen]);
+			sault += int(str[strlen]);
 
 		return sault;
 	}
 
 public:
-	string getHash (string userString, int lengthHash) {
+	string getHash(string userString, unsigned int lengthHash) {
 		if (lengthHash > 3)
-			{
-			//Минимальная длина строки, кратная двум, для хеширования
+		{
+			//Минимальная длина строки хеша, кратная двум
 			unsigned int minLen = 2;
 			//Длина строки, ближайшая к нужной длине хеша
 			unsigned int realMinLen = 0;
 
 			//Получаем соль оригинальной строки
-				unsigned int originalSault = this->getControlSum(userString);
-				unsigned int originalLenghtStr = (userString.size());
+			unsigned int originalSault = this->getControlSum(userString);
+			unsigned int originalLenghtStr = (userString.size());
 
 			//Получение длины строки, кратной степени двух, ближайшей к заданной длине хеша
-				while (minLen <= lengthHash)
-					realMinLen = (minLen *= 2);
+			while (minLen <= lengthHash)
+				realMinLen = (minLen *= 2);
+
+			//Получаем ближайшее к длине исходной строки число такого типа - 2^n
+			while (minLen < originalLenghtStr)
+				minLen *= 2;
 
 			//Делаем длину строки хеша, как минимум, в 2 раза длинней оригинальной строки
-				while (minLen < originalLenghtStr)
-					minLen *= 2;
-			//Можно сократить написав выше <= ?
-				if ((minLen - originalLenghtStr) < minLen)
-					minLen *= 2;
+			if ((minLen - originalLenghtStr) < minLen)
+				minLen *= 2;
 
 			//Получаем кол-во символов, которое необходимо добавить к строке
-				int addCount = minLen - originalLenghtStr;
+			int addCount = minLen - originalLenghtStr;
 
 			//Добавление
-				for (int i = 0; i < addCount; i++)
-					userString += this->receivingExistCodes(userString[i] + userString[i + 1]);
+			for (int i = 0; i < addCount; i++)
+				userString += this->receivingExistCodes(userString[i] + userString[i + 1]);
 
 			//Получаем максимальную соль
-				int maxSault = this->getControlSum(userString);
-				int maxLenghtStr = (userString.size());
+			int maxSault = this->getControlSum(userString);
+			int maxLenghtStr = (userString.size());
 
 			//Определение степени сжатия
-				while (userString.size() != realMinLen) //Проблема здесь realMinLen = 8, center = 16
-				{
-					for (int i = 0, center = userString.size() / 2; i < center; i++)
-						this->hash += this->receivingExistCodes(userString[center - i] + userString[center + i]);
+			while (userString.size() != realMinLen)
+			{
+				for (int i = 0, center = userString.size() / 2; i < center; i++)
+					this->hash += this->receivingExistCodes(userString[center - i] + userString[center + i]);
 
-					userString = this->hash;
-					this->hash.clear();
-				}
+				userString = this->hash;
+				this->hash.clear();
+			}
 
 			//Приведение к нужной длине
-				int rem = realMinLen - lengthHash;
+			unsigned int rem = realMinLen - lengthHash;
 
-				for (int i = 0, countCompress = realMinLen / rem; this->hash.size() < (lengthHash - 4); i++)
-				{
-					if (i % countCompress == 0)
-						this->hash += this->receivingExistCodes(userString[i] + userString[++i]);
-					else
-						this->hash += userString[i];
-				}
+			for (unsigned int i = 0, countCompress = realMinLen / rem; this->hash.size() < (lengthHash - 4); i++)
+			{
+				if (i % countCompress == 0)
+					this->hash += this->receivingExistCodes(userString[i] + userString[++i]);
+				else
+					this->hash += userString[i];
+			}
 
 			//Добавление оригинальных солей
-				this->hash += this->receivingExistCodes(originalSault);
-				this->hash += this->receivingExistCodes(originalLenghtStr);
+			this->hash += this->receivingExistCodes(originalSault);
+			this->hash += this->receivingExistCodes(originalLenghtStr);
 
 			//Добавление максимальных солей
-				this->hash += this->receivingExistCodes(maxSault);
-				this->hash += this->receivingExistCodes(maxLenghtStr);
+			this->hash += this->receivingExistCodes(maxSault);
+			this->hash += this->receivingExistCodes(maxLenghtStr);
 
 			return this->hash;
-			}
+		}
 		return "";
 	}
 };
@@ -112,93 +112,6 @@ class AutoTests {
 private:
 	int countInearation;
 
-	//Сравнение строк
-	int myStrcmp (string str1, string str2)
-	{
-	// 0 - Строки равны
-	// 1 - str1 > str2
-	// -1 - str2 > str1
-
-	//Сравниваем по длинам
-		if (str1.length() > str2.length())
-			return -1;
-		if (str1.length() < str2.length())
-			return 1;
-
-	//Сравниваем по символам (если длины равны)
-		for (unsigned int i = 0; i < str1.length(); i++)
-		{
-			if (str1[i] == str2[i]) continue;
-			if (i == str1.length() && str1[i] == str2[i])
-				return 0;
-			if (str1[i] != str2[i])
-				return str1[i] < str2[i] ? 1 : -1;
-		}
-	}
-
-	//Сортировка строк
-	void quickSortString(string a[], int l, int r)
-	{
-		//Центральный элемент
-		    string x = a[l + (r - l) / 2];
-
-		    //Первый эл. рассматриваемого массива
-		    int i = l;
-		    //Последний
-		    int j = r;
-
-		    //Обходим весь массив
-		    while(i <= j)
-		    {
-		    	//Определяем новые рамки
-		    	//while(strcmp(a[i].c_str(), x.c_str()) < 0) i++;
-			  	//while(strcmp(a[j].c_str(), x.c_str()) > 0) j--;
-		        while(myStrcmp(a[i], x) > 0) i++;
-		        while(myStrcmp(a[j], x) < 0) j--;
-		        if(i <= j)
-		        {
-		            swap(a[i], a[j]);
-		            i++;
-		            j--;
-		        }
-		    }
-
-		    //Обход части ближней к концу
-		    if (i<r)
-		    	quickSortString(a, i, r);
-
-		    //Обход части ближней к началу
-		    if (l<j)
-		    	quickSortString(a, l, j);
-	}
-
-	//Поиск совпадений
-	int searchString(string a[], string str, int l, int n)
-	{
-		int search = -1;
-
-		while (l < n)
-		{
-			//Центральный элемент
-				int x = l + (n - l) / 2;
-
-			//Если нашли
-			if (str == a[x]){
-				search = x;
-				break;
-			}
-
-			//Если не нашли
-			if (str < a[x])
-				n = x - 1;
-			else
-				l = x + 1;
-		}
-
-		return search;
-	}
-
-	//Приведение кодов
 	int receivingExistCodes(int x) {
 		x+=256;
 		while (!(((x <= 57) && (x >= 48)) || ((x <= 90) && (x >= 65)) || ((x <= 122) && (x >= 97)))) {
@@ -207,7 +120,14 @@ private:
 		return x;
 	}
 
-	//Генерация строки
+	int ceivingExistCodes(int x) {
+		x+=256;
+		while (!(((x <= 57) && (x >= 48)) || ((x <= 90) && (x >= 65)) || ((x <= 122) && (x >= 97)))) {
+			if (x < 48) {x+=24;} else {x-=47;}
+		}
+		return x;
+	}
+
 	string generationString ()
 	{
 		string str;
@@ -235,6 +155,7 @@ public:
 		string stringTemp;
 		string resultTemp;
 
+		string arrayString[this->countInearation];
 		string arrayHash[this->countInearation];
 
 		//Заполнение
@@ -245,23 +166,38 @@ public:
 			Hash hash;
 			resultTemp = hash.getHash(stringTemp, lenghtTemp);
 
+			/*cout << "String: " << stringTemp << endl;
+			cout << "LenghtHash: " << lenghtTemp << endl;
+			cout << "Hash: " << resultTemp << endl << endl;*/
+
+			arrayString[i] = stringTemp;
 			arrayHash[i] = resultTemp;
 		}
 
-		//Сортируем
-		this->quickSortString(arrayHash, 0, this->countInearation-1);
-
-		//Ищем
+		//Поиск совпадений (Да, знаю, что реализован плохо :( Нужно переделать)
 		for (int i = 0; i < this->countInearation; i++)
 		{
-			string str = arrayHash[i];
-			int x = this->searchString(arrayHash, str, 0, this->countInearation);
+			for (int j = 0; j < this->countInearation; j++)
+			{
+				if (i == j)
+					continue;
+				//Если есть совпадение
+				if (arrayHash[i]== arrayHash[j]){
+					//Проверяем не равны ли строки
+					if (arrayString[i] != arrayString[j])
+					{
+						cout << "Совпадение! (I): "
+						<< i << " " << arrayHash[i] << " (" << arrayString[i] << ") "
+						<< " (J): " << j <<  " " << arrayHash[j] << " (" << arrayString[j] << ") " << endl;
 
-			if (i != x && x != -1)
-				counterCoints++;
+						counterCoints++;
+					}
+				}
+			}
 		}
 
-		cout << "Всего совпадений: " << counterCoints << endl;
+		cout << "Всего совпадений: " << counterCoints;
+		arrayString->clear();
 		arrayHash->clear();
 	}
 };
@@ -274,10 +210,8 @@ int main() {
 
 	Hash hash(str,len);*/
 
-	AutoTests test(40000);
-	test.GoTestRandom(8);
-
-	 cout << "Time: " << double(clock()) << endl;
+	AutoTests test(5000);
+	test.GoTestRandom(6);
 
     //cout << hash.getHash() << endl;
 }
